@@ -193,7 +193,7 @@ app.post('/gravar', async (req, res) => {
     }
   } catch (error) {
     console.error('Erro ao gravar dados no banco de dados:', error);
-    res.status(500).json({ error: 'Erro ao gravar dados: "Registro Duplicado"' });
+    res.status(500).json({ error: 'Erro ao gravar dados' });
   }
 });
 

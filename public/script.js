@@ -118,19 +118,19 @@ async function gravarDadosFormulario() {
       body: new FormData(form),
     });
 
-    const data = await response.json();
-
     if (response.ok) {
-      exibirModal('Sucesso: ' + data.success); // Exibe a mensagem de sucesso em um modal
+      const data = await response.json();
+      // Exibe a mensagem de sucesso sem o modal
+      console.log('Sucesso:', data.success);
     } else {
       const errorData = await response.json();
-      exibirModal('Erro: ' + errorData.error); // Exibe a mensagem de erro em um modal
+      // Exibe a mensagem de erro sem o modal
+      console.error('Erro:', errorData.error);
     }
   } catch (error) {
     console.error('Erro ao gravar dados:', error);
   }
 }
-
 
 
 // Função para pesquisar dados do formulário
