@@ -8,7 +8,7 @@ async function obterClientes() {
   try {
     const connection = await getConnection(); 
     const [results] = await connection.query(query);
-    console.log(results);
+
     let listaClientes = [];
     
     if (Array.isArray(results)) {

@@ -9,10 +9,9 @@ const { format } = require('date-fns');
 const { zonedTimeToUtc } = require('date-fns-tz');
 
 const app = express();
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true })); // Middleware para fazer o parsing dos dados enviados pelo formulário
 
 const port = 3000;
 
@@ -42,18 +41,18 @@ app.get('/clientes', async (req, res) => {
 app.get('/procedimentos/:codigo', async (req, res) => {
   const codigo = req.params.codigo;
   try {
-    const procedimento = await procedimentoRepository.obterProcedimentoPorCodigo(codigo);
-    res.json(procedimento);
+    const procedimento =
+      await procedimentoRepository.obterProcedimentoPorCodigo(codigo);
+    res.status(200).json(procedimento);
   } catch (error) {
     console.error('Erro ao obter procedimento:', error);
-    res.status(500).json({ error: 'Erro ao obter procedimento' });
+    res.status(400).json({ error: 'Erro ao obter procedimento' });
   }
 });
 
 // Rota para consultar dados da tabela lanc_fatur
 app.get('/consulta', async (req, res) => {
   try {
-    
     const convenio = req.query.convenio;
     const cliente = req.query.cliente;
     const dataExecucao = req.query['data-procedimento'];
@@ -64,7 +63,8 @@ app.get('/consulta', async (req, res) => {
     const dataRecebimento = req.query['data-recebimento'];
 
     // Construa a consulta SQL com base nos parâmetros fornecidos
-    let sql = 'SELECT lf.*, p.ds_procedimento FROM lanc_fatur lf JOIN procedimentos p ON lf.cd_procedimento = p.procedimento WHERE 1=1';
+    let sql =
+      'SELECT lf.*, p.ds_procedimento FROM lanc_fatur lf JOIN procedimentos p ON lf.cd_procedimento = p.procedimento WHERE 1=1';
     let params = [];
 
     if (convenio) {
@@ -116,10 +116,11 @@ app.get('/consulta', async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error('Erro ao consultar dados da tabela lanc_fatur:', error);
-    res.status(500).json({ error: 'Erro ao consultar dados da tabela lanc_fatur' });
+    res
+      .status(500)
+      .json({ error: 'Erro ao consultar dados da tabela lanc_fatur' });
   }
 });
-
 
 app.post('/gravar', async (req, res) => {
   try {
@@ -139,7 +140,8 @@ app.post('/gravar', async (req, res) => {
     } = req.body;
 
     // Extrair o código do convênio e limitar o tamanho
-    const convenioCodigo = convenio && convenio.substr(0, convenio.indexOf(' - '));
+    const convenioCodigo =
+      convenio && convenio.substr(0, convenio.indexOf(' - '));
 
     // Extrair o código do cliente e limitar o tamanho
     const clienteCodigo = cliente && cliente.substr(0, cliente.indexOf(' - '));
@@ -148,7 +150,10 @@ app.post('/gravar', async (req, res) => {
     const values = [
       convenioCodigo.toUpperCase(),
       clienteCodigo.toUpperCase(),
-      zonedTimeToUtc(new Date(dataProcedimento + 'T00:00:00'), 'America/Cuiaba'),
+      zonedTimeToUtc(
+        new Date(dataProcedimento + 'T00:00:00'),
+        'America/Cuiaba'
+      ),
       paciente.toUpperCase(),
       codigoProcedimento.toUpperCase(),
       valorProcedimento.toUpperCase(),
@@ -156,8 +161,17 @@ app.post('/gravar', async (req, res) => {
     ];
 
     // Converter a data recebida para o fuso horário do servidor antes de inserir no banco de dados
-    const dataProcedimentoServerTimezone = format(zonedTimeToUtc(new Date(dataProcedimento + 'T00:00:00'), 'America/Cuiaba'), 'yyyy-MM-dd');
-    const dataRecebimentoServerTimezone = format(zonedTimeToUtc(new Date(dataRecebimento + 'T00:00:00'), 'America/Cuiaba'), 'yyyy-MM-dd');
+    const dataProcedimentoServerTimezone = format(
+      zonedTimeToUtc(
+        new Date(dataProcedimento + 'T00:00:00'),
+        'America/Cuiaba'
+      ),
+      'yyyy-MM-dd'
+    );
+    const dataRecebimentoServerTimezone = format(
+      zonedTimeToUtc(new Date(dataRecebimento + 'T00:00:00'), 'America/Cuiaba'),
+      'yyyy-MM-dd'
+    );
 
     // Atualizar o valor da data de execução no array de valores
     values[2] = dataProcedimentoServerTimezone;
@@ -167,9 +181,13 @@ app.post('/gravar', async (req, res) => {
 
     // Consulta para verificar se o registro já existe
     console.log('Verificando duplicidade...');
-    const duplicateCheckQuery = 'SELECT COUNT(*) AS count FROM lanc_fatur WHERE cd_convenio = ? AND cd_cliente = ? AND dt_execucao_procedimento = ? AND nm_paciente = ? AND cd_procedimento = ? AND vl_receber = ? AND dt_recebimento = ?';
+    const duplicateCheckQuery =
+      'SELECT COUNT(*) AS count FROM lanc_fatur WHERE cd_convenio = ? AND cd_cliente = ? AND dt_execucao_procedimento = ? AND nm_paciente = ? AND cd_procedimento = ? AND vl_receber = ? AND dt_recebimento = ?';
     const duplicateCheckValues = [...values];
-    const [duplicateCheckResults] = await connection.query(duplicateCheckQuery, duplicateCheckValues);
+    const [duplicateCheckResults] = await connection.query(
+      duplicateCheckQuery,
+      duplicateCheckValues
+    );
 
     const { count } = duplicateCheckResults[0];
 
@@ -182,14 +200,17 @@ app.post('/gravar', async (req, res) => {
       console.log('Inserindo registro:', req.body);
 
       // Construir a consulta SQL para inserção dos dados
-      const insertQuery = 'INSERT INTO lanc_fatur (cd_convenio, cd_cliente, dt_execucao_procedimento, nm_paciente, cd_procedimento, vl_receber, dt_recebimento) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      const insertQuery =
+        'INSERT INTO lanc_fatur (cd_convenio, cd_cliente, dt_execucao_procedimento, nm_paciente, cd_procedimento, vl_receber, dt_recebimento) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
       // Executar a consulta SQL para inserção dos dados
       await connection.query(insertQuery, values);
 
       // Enviar resposta com status de sucesso
       console.log('Dados gravados no banco de dados:', req.body);
-      return res.status(200).json({ success: 'Dados gravados no banco de dados' });
+      return res
+        .status(200)
+        .json({ success: 'Dados gravados no banco de dados' });
     }
   } catch (error) {
     console.error('Erro ao gravar dados no banco de dados:', error);
@@ -199,7 +220,7 @@ app.post('/gravar', async (req, res) => {
 
 // Rota para renderizar o HTML com o formulário
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'lanc_faturamento.html'));
+  res.sendFile(path.join(__dirname, 'public', 'Lanc_Faturamento.html'));
 });
 
 // Tratamento genérico de erros

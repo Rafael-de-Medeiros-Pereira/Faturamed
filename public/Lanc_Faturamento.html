@@ -1,70 +1,73 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Lançamento de Faturamento</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Lançamento de Faturamento</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <div id="quadro-superior">
-            <h1>Lançamento de Produção</h1>
-            <form id="lancamento" action="/gravar" method="POST">
-                
-                <label for="convenio">Convênio:</label>
-                <select id="convenio" name="convenio" required>
-                    <option value="">Selecione um convênio</option>
-                </select>
+  <div class="container">
+    <div id="quadro-superior">
+      <h1>Lançamento de Produção</h1>
+      <form id="lancamento">
 
-                <label for="cliente">Cliente:</label>
-                <select id="cliente" name="cliente" required>
-                    <option value="">Selecione um cliente</option>
-                </select>
+        <label for="convenio">Convênio:</label>
+        <select id="convenio" name="convenio" required>
+          <option value="">Selecione um convênio</option>
+        </select>
 
-                <label for="data-procedimento">Data de execução:</label>
-                <input type="date" id="data-procedimento" name="data-procedimento" required>
+        <label for="cliente">Cliente:</label>
+        <select id="cliente" name="cliente" required>
+          <option value="">Selecione um cliente</option>
+        </select>
 
-                <label for="paciente">Paciente:</label>
-                <input type="text" id="paciente" name="paciente" required>
+        <label for="data-procedimento">Data de execução:</label>
+        <input type="date" id="data-procedimento" name="data-procedimento" required>
 
-                <label for="codigo-procedimento">Código do Procedimento:</label>
-                <input type="number" id="codigo-procedimento" name="codigo-procedimento" required>
+        <label for="paciente">Paciente:</label>
+        <input type="text" id="paciente" name="paciente" required>
 
-                <label for="descricao-procedimento">Descrição do Procedimento:</label>
-                <input type="text" id="descricao-procedimento" name="descricao-procedimento" required>
+        <label for="codigo-procedimento">Código do Procedimento:</label>
+        <input type="number" id="codigo-procedimento" name="codigo-procedimento" required>
 
-                <label for="valor-procedimento">Valor do Procedimento:</label>
-                <input type="text" id="valor-procedimento" name="valor-procedimento" required>
+        <label for="descricao-procedimento">Descrição do Procedimento:</label>
+        <input type="text" id="descricao-procedimento" name="descricao-procedimento" required>
 
-                <label for="data-recebimento">Data de Recebimento:</label>
-                <input type="date" id="data-recebimento" name="data-recebimento" required>
+        <label for="valor-procedimento">Valor do Procedimento:</label>
+        <input type="text" id="valor-procedimento" name="valor-procedimento" required>
 
-                <input type="submit" id="btn-enviar" value="Registrar">
-                <input type="button" id="btn-pesquisar" value="Pesquisar">
-            </form>
-        </div>
-        <div id="quadro-inferior">
-            <h2>Consulta de Lançamentos</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Convênio</th>
-                        <th>Cliente</th>
-                        <th>Data Execução</th>
-                        <th>Paciente</th>
-                        <th>Código do Procedimento</th>
-                        <th>Descrição do Procedimento</th>
-                        <th>Valor do Procedimento</th>
-                        <th>Data do Recebimento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Linhas da grid aqui -->
-                </tbody>
-            </table>
-        </div>
+        <label for="data-recebimento">Data de Recebimento:</label>
+        <input type="date" id="data-recebimento" name="data-recebimento" required>
+
+        <input type="submit" id="btn-enviar" value="Registrar">
+        <input type="button" id="btn-pesquisar" value="Pesquisar">
+      </form>
     </div>
+    <div id="quadro-inferior">
+      <h2>Consulta de Lançamentos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Convênio</th>
+            <th>Cliente</th>
+            <th>Data Execução</th>
+            <th>Paciente</th>
+            <th>Código do Procedimento</th>
+            <th>Descrição do Procedimento</th>
+            <th>Valor do Procedimento</th>
+            <th>Data do Recebimento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linhas da grid aqui -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>
