@@ -1,5 +1,5 @@
 console.log('Script.js carregado.'); // Linha adicionada
-'use strict';
+('use strict');
 
 const form = document.getElementById('lancamento');
 
@@ -21,7 +21,6 @@ async function carregarConvenios() {
     const response = await fetch('/convenios');
     const convenios = await response.json();
     preencherSelect('convenio', convenios);
-    console.log('Convênios carregados:', convenios);
   } catch (error) {
     console.error('Erro ao carregar convênios:', error);
   }
@@ -33,7 +32,6 @@ async function carregarClientes() {
     const response = await fetch('/clientes');
     const clientes = await response.json();
     preencherSelect('cliente', clientes);
-    console.log('Clientes carregados:', clientes);
   } catch (error) {
     console.error('Erro ao carregar clientes:', error);
   }
@@ -44,9 +42,14 @@ async function obterNomenclaturaProcedimento(codigoProcedimento) {
   try {
     const response = await fetch(`/procedimentos/${codigoProcedimento}`);
     const procedimento = await response.json();
-    const descricaoProcedimento = document.getElementById('descricao-procedimento');
+    if (response.status !== 200) {
+      // não fazemos nada
+      return;
+    }
+    const descricaoProcedimento = document.getElementById(
+      'descricao-procedimento'
+    );
     descricaoProcedimento.value = procedimento;
-    console.log('Nomenclatura do procedimento obtida:', procedimento);
   } catch (error) {
     console.error('Erro ao obter nomenclatura do procedimento:', error);
   }
@@ -63,7 +66,10 @@ function formatarValorProcedimento() {
   const valorProcedimentoInput = document.getElementById('valor-procedimento');
 
   // Remove qualquer formatação anterior
-  valorProcedimentoInput.value = valorProcedimentoInput.value.replace(/[^0-9.,]/g, '');
+  valorProcedimentoInput.value = valorProcedimentoInput.value.replace(
+    /[^0-9.,]/g,
+    ''
+  );
 
   // Adiciona evento de saída de foco ao campo
   valorProcedimentoInput.addEventListener('blur', function (event) {
@@ -83,7 +89,9 @@ function formatarNumeroMoeda(numero) {
     currency: 'BRL',
   });
 
-  const numeroFormatado = formatter.format(parseFloat(numero.replace(',', '.').replace(/\.(?=[^.]*\.)/g, '')));
+  const numeroFormatado = formatter.format(
+    parseFloat(numero.replace(',', '.').replace(/\.(?=[^.]*\.)/g, ''))
+  );
   return numeroFormatado;
 }
 
@@ -111,11 +119,24 @@ function exibirModal(mensagem) {
 // Função para gravar os dados do formulário
 async function gravarDadosFormulario() {
   try {
-    console.log('Dados recebidos:', new FormData(form));
-
+    const elements = form.elements;
+    const data = {
+      convenio: elements.convenio.value,
+      cliente: elements.cliente.value,
+      'data-procedimento': elements['data-procedimento'].value,
+      paciente: elements.paciente.value,
+      'codigo-procedimento': elements['codigo-procedimento'].value,
+      'descricao-procedimento': elements['descricao-procedimento'].value,
+      'valor-procedimento': elements['valor-procedimento'].value,
+      'data-recebimento': elements['data-recebimento'].value,
+    };
+    console.log(data);
     const response = await fetch('/gravar', {
       method: 'POST',
-      body: new FormData(form),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
 
     if (response.ok) {
@@ -131,7 +152,6 @@ async function gravarDadosFormulario() {
     console.error('Erro ao gravar dados:', error);
   }
 }
-
 
 // Função para pesquisar dados do formulário
 async function pesquisarDadosFormulario() {
@@ -184,33 +204,38 @@ async function pesquisarDadosFormulario() {
       const dataRecebimentoTd = document.createElement('td');
       const dataRecebimento = new Date(row.dt_recebimento);
       dataRecebimento.setDate(dataRecebimento.getDate() + 1); // Adiciona um dia à data
-      const dataRecebimentoFormatted = dataRecebimento.toLocaleDateString('pt-BR', { timeZone: 'America/Cuiaba' });
+      const dataRecebimentoFormatted = dataRecebimento.toLocaleDateString(
+        'pt-BR',
+        { timeZone: 'America/Cuiaba' }
+      );
       dataRecebimentoTd.textContent = dataRecebimentoFormatted;
       dataRecebimentoTd.classList.add('table-cell-centered'); // Adiciona a classe CSS
       tr.appendChild(dataRecebimentoTd);
 
       tbody.appendChild(tr);
     });
-
   } catch (error) {
     console.error('Erro ao pesquisar dados:', error);
   }
 }
-
 
 // Chama as funções para carregar os convênios, clientes e procedimento
 window.addEventListener('DOMContentLoaded', async () => {
   await carregarConvenios();
   await carregarClientes();
 
-  const codigoProcedimentoInput = document.getElementById('codigo-procedimento');
-  codigoProcedimentoInput.addEventListener('blur', handleCodigoProcedimentoChange);
+  const codigoProcedimentoInput = document.getElementById(
+    'codigo-procedimento'
+  );
+  codigoProcedimentoInput.addEventListener(
+    'blur',
+    handleCodigoProcedimentoChange
+  );
 
   formatarValorProcedimento();
 
-  const btnRegistrar = document.getElementById('btn-enviar');
-  btnRegistrar.addEventListener('click', () => {
-    console.log('Botão "Registrar" clicado.');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
     gravarDadosFormulario();
   });
 
