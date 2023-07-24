@@ -95,25 +95,8 @@ function formatarNumeroMoeda(numero) {
   return numeroFormatado;
 }
 
-// Função para exibir a mensagem em um modal
-function exibirModal(mensagem) {
-  const modal = document.getElementById('modal');
-  const modalMessage = document.getElementById('modal-message');
-  const closeModal = document.getElementsByClassName('close')[0];
-
-  modalMessage.textContent = mensagem;
-
-  modal.style.display = 'block';
-
-  closeModal.onclick = function () {
-    modal.style.display = 'none';
-  };
-
-  window.onclick = function (event) {
-    if (event.target === modal) {
-      modal.style.display = 'none';
-    }
-  };
+function limparFormulario() {
+  form.reset();
 }
 
 // Função para gravar os dados do formulário
@@ -140,16 +123,28 @@ async function gravarDadosFormulario() {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      // Exibe a mensagem de sucesso sem o modal
-      console.log('Sucesso:', data.success);
+      const responseData = await response.json();
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Dados Gravados com Sucesso.',
+      });
+      limparFormulario(); // Limpa o formulário após o envio bem-sucedido
     } else {
       const errorData = await response.json();
-      // Exibe a mensagem de erro sem o modal
-      console.error('Erro:', errorData.error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: errorData.error
+      });
     }
   } catch (error) {
     console.error('Erro ao gravar dados:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro!',
+      text: 'Erro ao gravar dados. Por favor, tente novamente mais tarde.',
+    });
   }
 }
 
@@ -219,6 +214,16 @@ async function pesquisarDadosFormulario() {
   }
 }
 
+// Função para lidar com o evento "Tab" no campo "Código do Procedimento"
+function handleCodigoProcedimentoTab(event) {
+  // Código da tecla Tab é 9
+  if (event.keyCode === 9) {
+    event.preventDefault();
+    const valorProcedimentoInput = document.getElementById('valor-procedimento');
+    valorProcedimentoInput.focus();
+  }
+}
+
 // Chama as funções para carregar os convênios, clientes e procedimento
 window.addEventListener('DOMContentLoaded', async () => {
   await carregarConvenios();
@@ -232,7 +237,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     handleCodigoProcedimentoChange
   );
 
+    // Adiciona o evento de escuta para o "Tab" no campo "Código do Procedimento"
+    codigoProcedimentoInput.addEventListener('keydown', handleCodigoProcedimentoTab);
+
   formatarValorProcedimento();
+
 
   form.addEventListener('submit', event => {
     event.preventDefault();

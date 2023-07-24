@@ -8,6 +8,7 @@ const getConnection = require('./infra/db/connection');
 const { format } = require('date-fns');
 const { zonedTimeToUtc } = require('date-fns-tz');
 
+
 const app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -193,8 +194,8 @@ app.post('/gravar', async (req, res) => {
 
     if (count > 0) {
       // Registro duplicado encontrado, enviar resposta com status de erro
-      console.log('Registro duplicado encontrado:', req.body);
-      return res.status(400).json({ error: 'Registro duplicado encontrado' });
+      console.log('Registro Duplicado:', req.body);
+      return res.status(400).json({ error: 'Registro Duplicado.' });
     } else {
       // Registro não duplicado, realizar a inserção no banco
       console.log('Inserindo registro:', req.body);

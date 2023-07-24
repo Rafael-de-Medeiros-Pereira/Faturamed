@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Lançamento de Faturamento</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="sweetalert2.min.css">
 </head>
 
 <body>
@@ -33,7 +34,7 @@
         <input type="number" id="codigo-procedimento" name="codigo-procedimento" required>
 
         <label for="descricao-procedimento">Descrição do Procedimento:</label>
-        <input type="text" id="descricao-procedimento" name="descricao-procedimento" required>
+        <input type="text" id="descricao-procedimento" name="descricao-procedimento" disabled required>
 
         <label for="valor-procedimento">Valor do Procedimento:</label>
         <input type="text" id="valor-procedimento" name="valor-procedimento" required>
@@ -66,7 +67,7 @@
       </table>
     </div>
   </div>
-
+  <script src="sweetalert2.all.min.js"></script>
   <script src="script.js"></script>
 </body>
 
