@@ -99,9 +99,49 @@ function limparFormulario() {
   form.reset();
 }
 
+// verificar campos obrigatórios de preenchimento
+function verificarCamposObrigatoriosPreenchidos() {
+  const elements = form.elements;
+  const camposObrigatorios = [
+    { campo: 'convenio', label: 'Convênio' },
+    { campo: 'cliente', label: 'Cliente' },
+    { campo: 'data-procedimento', label: 'Data do Procedimento' },
+    { campo: 'paciente', label: 'Paciente' },
+    { campo: 'codigo-procedimento', label: 'Código do Procedimento' },
+    { campo: 'valor-procedimento', label: 'Valor do Procedimento' }
+  ];
+
+  const camposNaoPreenchidos = [];
+
+  for (const campoInfo of camposObrigatorios) {
+    const campo = campoInfo.campo;
+    const label = campoInfo.label;
+
+    if (!elements[campo].value) {
+      camposNaoPreenchidos.push(label);
+    }
+  }
+
+  return camposNaoPreenchidos;
+}
+
+
 // Função para gravar os dados do formulário
 async function gravarDadosFormulario() {
   try {
+    const camposNaoPreenchidos = verificarCamposObrigatoriosPreenchidos();
+    if (camposNaoPreenchidos.length > 0) {
+      const camposLista = camposNaoPreenchidos
+        .map(campo => `<li>${campo}</li>`)
+        .join('');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        html: `<p style="margin-bottom: 0;">Campos obrigatórios não preenchidos:</p><ul style="list-style: none; padding-left: 0;">${camposLista}</ul>`,
+      });
+      return;
+    }
     const elements = form.elements;
     const data = {
       convenio: elements.convenio.value,
@@ -111,8 +151,14 @@ async function gravarDadosFormulario() {
       'codigo-procedimento': elements['codigo-procedimento'].value,
       'descricao-procedimento': elements['descricao-procedimento'].value,
       'valor-procedimento': elements['valor-procedimento'].value,
-      'data-recebimento': elements['data-recebimento'].value,
+      'valor-procedimento': elements['valor-procedimento'].value,
     };
+    
+    // Verifica se o campo 'data-recebimento' está preenchido
+    if (elements['data-recebimento'].value.trim() !== '') {
+      data['data-recebimento'] = elements['data-recebimento'].value;
+    }
+
     console.log(data);
     const response = await fetch('/gravar', {
       method: 'POST',
@@ -127,7 +173,7 @@ async function gravarDadosFormulario() {
       Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
-        text: 'Dados Gravados com Sucesso.',
+        text: 'Dados Gravados com Sucesso!',
       });
       limparFormulario(); // Limpa o formulário após o envio bem-sucedido
     } else {
@@ -245,8 +291,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   form.addEventListener('submit', event => {
     event.preventDefault();
+    console.log('Botão "Registrar" clicado.');
     gravarDadosFormulario();
   });
+
+  const btnEnviar = document.getElementById('btn-enviar');
+btnEnviar.addEventListener('click', () => {
+  console.log('Botão "Registrar" clicado.');
+  gravarDadosFormulario(document.getElementById('lancamento'));
+});
 
   const btnPesquisar = document.getElementById('btn-pesquisar');
   btnPesquisar.addEventListener('click', () => {

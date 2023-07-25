@@ -158,32 +158,26 @@ app.post('/gravar', async (req, res) => {
       paciente.toUpperCase(),
       codigoProcedimento.toUpperCase(),
       valorProcedimento.toUpperCase(),
-      zonedTimeToUtc(new Date(dataRecebimento + 'T00:00:00'), 'America/Cuiaba'),
     ];
 
-    // Converter a data recebida para o fuso horário do servidor antes de inserir no banco de dados
-    const dataProcedimentoServerTimezone = format(
-      zonedTimeToUtc(
-        new Date(dataProcedimento + 'T00:00:00'),
-        'America/Cuiaba'
-      ),
-      'yyyy-MM-dd'
-    );
-    const dataRecebimentoServerTimezone = format(
-      zonedTimeToUtc(new Date(dataRecebimento + 'T00:00:00'), 'America/Cuiaba'),
-      'yyyy-MM-dd'
-    );
-
-    // Atualizar o valor da data de execução no array de valores
-    values[2] = dataProcedimentoServerTimezone;
-
-    // Atualizar o valor da data de recebimento no array de valores
-    values[6] = dataRecebimentoServerTimezone;
+    // Verificar se o campo 'data-recebimento' está preenchido
+    if (dataRecebimento) {
+      // Converter a data recebida para o fuso horário do servidor antes de inserir no banco de dados
+      const dataRecebimentoServerTimezone = format(
+        zonedTimeToUtc(new Date(dataRecebimento + 'T00:00:00'), 'America/Cuiaba'),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
+      );
+      // Atualizar o valor da data de recebimento no array de valores
+      values.push(dataRecebimentoServerTimezone);
+    } else {
+      // Se o campo 'data-recebimento' estiver vazio, adicionar um valor nulo ao array de valores
+      values.push(null);
+    }
 
     // Consulta para verificar se o registro já existe
     console.log('Verificando duplicidade...');
     const duplicateCheckQuery =
-      'SELECT COUNT(*) AS count FROM lanc_fatur WHERE cd_convenio = ? AND cd_cliente = ? AND dt_execucao_procedimento = ? AND nm_paciente = ? AND cd_procedimento = ? AND vl_receber = ? AND dt_recebimento = ?';
+      'SELECT COUNT(*) AS count FROM lanc_fatur WHERE cd_convenio = ? AND cd_cliente = ? AND dt_execucao_procedimento = ? AND nm_paciente = ? AND cd_procedimento = ? AND vl_receber = ? AND (dt_recebimento = ? OR dt_recebimento IS NULL)';
     const duplicateCheckValues = [...values];
     const [duplicateCheckResults] = await connection.query(
       duplicateCheckQuery,
@@ -218,6 +212,7 @@ app.post('/gravar', async (req, res) => {
     res.status(500).json({ error: 'Erro ao gravar dados' });
   }
 });
+
 
 // Rota para renderizar o HTML com o formulário
 app.get('/', (req, res) => {
